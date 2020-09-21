@@ -127,7 +127,6 @@ def myModel():
     model.compile(Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-
 model = myModel()
 print(model.summary())
 
