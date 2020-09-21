@@ -8,16 +8,16 @@ from keras.utils.np_utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-from keras.layers import Dropout,Flatten
-from keras.layers.convolutional import Conv2D,MaxPooling2D
+from keras.layers import Dropout, Flatten
+from keras.layers.convolutional import Conv2D, MaxPooling2D
 import pickle
 
 #######################
 path = 'F:\OCR\myData'
 testRatio = 0.2
 valRatio = 0.2
-imageDimensions= (32,32,3)
-batchSizeVal= 50
+imageDimensions = (32, 32, 3)
+batchSizeVal = 50
 epochsVal = 10
 stepsPerEpochVal = 2000
 #######################
@@ -127,13 +127,38 @@ def myModel():
     model.compile(Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
+
 model = myModel()
 print(model.summary())
 
 #### STARTING THE TRAINING PROCESS
-history = model.fit_generator(dataGen.flow(X_train,y_train,
-                                 batch_size=batchSizeVal),
-                                 steps_per_epoch=stepsPerEpochVal,
-                                 epochs=epochsVal,
-                                 validation_data=(X_validation,y_validation),
-                                 shuffle=1)
+history = model.fit_generator(dataGen.flow(X_train, y_train,
+                                           batch_size=batchSizeVal),
+                              steps_per_epoch=stepsPerEpochVal,
+                              epochs=epochsVal,
+                              validation_data=(X_validation, y_validation),
+                              shuffle=1)
+#### PLOT THE RESULTS
+plt.figure(1)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.legend(['training', 'validation'])
+plt.title('Loss')
+plt.xlabel('epoch')
+plt.figure(2)
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.legend(['training', 'validation'])
+plt.title('Accuracy')
+plt.xlabel('epoch')
+plt.show()
+
+#### EVALUATE USING TEST IMAGES
+score = model.evaluate(X_test, y_test, verbose=0)
+print('Test Score = ', score[0])
+print('Test Accuracy =', score[1])
+
+#### SAVE THE TRAINED MODEL
+pickle_out = open("model_trained.p", "wb")
+pickle.dump(model, pickle_out)
+pickle_out.close()
